@@ -1,66 +1,68 @@
 package fr.hetic;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 
 public class file_op {
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java FileProcessor <chemin_dossier>");
-            return;
-        }
-        File folder = new File(args[0]);
-
-        if (!folder.exists() || !folder.isDirectory()) {
-            System.out.println("Le chemin spécifié n'est pas un répertoire valide.");
+        if (args.length == 0) {
+            System.err.println("Veuillez fournir le chemin absolu du dossier en argument.");
             return;
         }
 
-        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".op"));
+        File directory = new File(args[0]);
+        String[] flist = directory.list();
 
-        for (File file : files) {
-            processFile(file);
+        if (flist == null) {
+            System.err.println("Le chemin spécifié ne correspond pas à un dossier valide.");
+            return;
         }
-    }
 
-    private static void processFile(File file) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(file.getAbsolutePath().replace(".op", ".res")))) {
+        for (String filename : flist) {
+            File opFile = new File(directory, filename);
+            if (!opFile.isFile() || !filename.endsWith(".txt")) {
+                continue;  
+            }
+            
+            File resFile = new File(directory, filename.substring(0, filename.length() - 4) + ".res");
 
-            String line;
+            try (Scanner readerOp = new Scanner(opFile);
+                 FileWriter writerRes = new FileWriter(resFile)) {
 
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(" ");
-                if (parts.length != 3) {
-                    writer.write("ERROR\n");
-                    continue;
-                }
-                try {
-                    double num1 = Double.parseDouble(parts[0]);
-                    double num2 = Double.parseDouble(parts[1]);
-                    String operator = parts[2];
+                while (readerOp.hasNextLine()) {
+                    String data = readerOp.nextLine();
+                    if (data.length() < 5 || !Character.isDigit(data.charAt(0)) || !Character.isDigit(data.charAt(2))) {
+                        writerRes.write("ERROR: Format d'opération incorrect\n");
+                        continue;
+                    }
 
-                    double result;
+                    int leftNumber = Character.getNumericValue(data.charAt(0));
+                    int rightNumber = Character.getNumericValue(data.charAt(2));
+                    char operator = data.charAt(4);
+
+                    int result;
                     switch (operator) {
-                        case "+":
-                            result = num1 + num2;
+                        case '+':
+                            result = leftNumber + rightNumber;
                             break;
-                        case "-":
-                            result = num1 - num2;
+                        case '-':
+                            result = leftNumber - rightNumber;
                             break;
-                        case "*":
-                            result = num1 * num2;
+                        case '*':
+                            result = leftNumber * rightNumber;
                             break;
                         default:
-                            writer.write("ERROR\n");
+                            writerRes.write("ERROR: Opérateur non pris en charge\n");
                             continue;
                     }
 
-                    writer.write(String.valueOf(result) + "\n");
-                } catch (NumberFormatException e) {
-                    writer.write("ERROR\n");
+                    writerRes.write(result + "\n");
                 }
+            } catch (IOException e) {
+                System.err.println("Une erreur s'est produite lors de la lecture ou de l'écriture des fichiers.");
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            System.out.println("Erreur lors du traitement du fichier : " + e.getMessage());
         }
     }
 }
