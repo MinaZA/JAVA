@@ -21,7 +21,7 @@ public class file_op {
 
         for (String filename : flist) {
             File opFile = new File(directory, filename);
-            if (!opFile.isFile() || !filename.endsWith(".txt")) {
+            if (!opFile.isFile() || !filename.endsWith(".op")) {
                 continue;  
             }
             

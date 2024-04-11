@@ -17,13 +17,19 @@
 	</properties>
 
 	<dependencies>
-	<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-<dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-lang3</artifactId>
-    <version>3.14.0</version>
+	<!--commons lang-->
+	<dependency>
+    	<groupId>org.apache.commons</groupId>
+    	<artifactId>commons-lang3</artifactId>
+    	<version>3.14.0</version>
+	</dependency>
+	<!--Junit-->
+	<dependency>
+    	<groupId>org.junit.jupiter</groupId>
+    	<artifactId>junit-jupiter-engine</artifactId>
+    	<version>5.8.1</version> <!-- Assurez-vous d'utiliser la dernière version de JUnit5 -->
+    <scope>test</scope>
 </dependency>
-
 	</dependencies>
 	<build>
 		<plugins>

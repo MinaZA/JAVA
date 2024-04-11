@@ -1,4 +1,4 @@
-package main.java.fr.hetic.Exo4;
+package fr.hetic.Exo4;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -31,7 +31,7 @@ public class file_op {
         }
 
         for (File file : files) {
-            if (file.isFile() && file.getName().endsWith(".txt")) {
+            if (file.isFile() && file.getName().endsWith(".op")) {
                 processFile(file);
             }
         }

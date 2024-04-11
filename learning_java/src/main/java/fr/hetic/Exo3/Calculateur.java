@@ -22,7 +22,7 @@ public class Calculateur {
 
         for (String filename : flist) {
             File opFile = new File(directory, filename);
-            if (!opFile.isFile() || !filename.endsWith(".txt")) {
+            if (!opFile.isFile() || !filename.endsWith(".op")) {
                 continue;
             }
 
@@ -43,7 +43,7 @@ public class Calculateur {
                     char operator = data.charAt(4);
 
                     try {
-                        Operation operation = OperationFactory.createOperation(operator);
+                        Operation operation = Operateur.createOperation(operator);
                         int result = operation.execute(leftNumber, rightNumber);
                         writerRes.write(result + "\n");
                     } catch (IllegalArgumentException e) {
