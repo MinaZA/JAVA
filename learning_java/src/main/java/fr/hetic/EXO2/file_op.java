@@ -1,4 +1,4 @@
-package fr.hetic;
+package fr.hetic.EXO2;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
