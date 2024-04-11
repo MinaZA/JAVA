@@ -1,16 +1,17 @@
 package fr.hetic.Exo3;
 
 public class Operateur {
-    public static Operation createOperation(String operateur) {
-        switch (operateur) {
-            case "+":
+    public static Operation createOperation(char operator) {
+        switch (operator) {
+            case '+':
                 return new Addition();
-            case "-":
+            case '-':
                 return new Soustraction();
-            case "*":
+            case '*':
                 return new Multiplication();
             default:
-                throw new IllegalArgumentException("Opérateur invalide. Utilisez '+', '-' ou '*'.");
+                throw new IllegalArgumentException("Opérateur non pris en charge : " + operator);
         }
     }
 }
+

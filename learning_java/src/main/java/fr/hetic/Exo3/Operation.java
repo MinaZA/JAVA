@@ -1,5 +1,6 @@
 package fr.hetic.Exo3;
 
 public interface Operation {
-    double execute(double num1, double num2);
+    int execute(int num1, int num2);
 }
+

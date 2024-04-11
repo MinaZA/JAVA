@@ -1,29 +1,61 @@
 package fr.hetic.Exo3;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
 public class Calculateur {
     public static void main(String[] args) {
-        if (args.length != 3) {
-            System.out.println("Calculateur : <nombre> <nombre> <opérateur>");
-            return;
-        }
-        double num1, num2;
-        String operateur;
-        try {
-            num1 = Double.parseDouble(args[0]);
-            num2 = Double.parseDouble(args[1]);
-            operateur = args[2];
-        } catch (NumberFormatException e) {
-            System.out.println("Les deux premiers arguments sont être des nombres.");
+        if (args.length == 0) {
+            System.err.println("Veuillez fournir le chemin absolu du dossier en argument.");
             return;
         }
 
-        try {
-            Operation operation = Operateur.createOperation(operateur);
-            double resultat = operation.execute(num1, num2);
-            System.out.println("Résultat : " + resultat);
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+        File directory = new File(args[0]);
+        String[] flist = directory.list();
+
+        if (flist == null) {
+            System.err.println("Le chemin spécifié ne correspond pas à un dossier valide.");
+            return;
+        }
+
+        for (String filename : flist) {
+            File opFile = new File(directory, filename);
+            if (!opFile.isFile() || !filename.endsWith(".txt")) {
+                continue;
+            }
+
+            File resFile = new File(directory, filename.substring(0, filename.length() - 4) + ".res");
+
+            try (Scanner readerOp = new Scanner(opFile);
+                 FileWriter writerRes = new FileWriter(resFile)) {
+
+                while (readerOp.hasNextLine()) {
+                    String data = readerOp.nextLine();
+                    if (data.length() < 5 || !Character.isDigit(data.charAt(0)) || !Character.isDigit(data.charAt(2))) {
+                        writerRes.write("ERROR: Format d'opération incorrect\n");
+                        continue;
+                    }
+
+                    int leftNumber = Character.getNumericValue(data.charAt(0));
+                    int rightNumber = Character.getNumericValue(data.charAt(2));
+                    char operator = data.charAt(4);
+
+                    try {
+                        Operation operation = OperationFactory.createOperation(operator);
+                        int result = operation.execute(leftNumber, rightNumber);
+                        writerRes.write(result + "\n");
+                    } catch (IllegalArgumentException e) {
+                        writerRes.write("ERROR: Opérateur non pris en charge\n");
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("Une erreur s'est produite lors de la lecture ou de l'écriture des fichiers.");
+                e.printStackTrace();
+            }
         }
     }
 }
+
 
