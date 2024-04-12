@@ -1,21 +1,10 @@
 package fr.hetic.Exo4;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class file_op {
-    private static final Map<Character, BinaryOperator> OPERATORS = new HashMap<>();
-
-    static {
-        OPERATORS.put('+', (a, b) -> a + b);
-        OPERATORS.put('-', (a, b) -> a - b);
-        OPERATORS.put('*', (a, b) -> a * b);
-    }
-
     public static void main(String[] args) {
         if (args.length == 0) {
             System.err.println("Veuillez fournir le chemin absolu du dossier en argument.");
@@ -38,28 +27,30 @@ public class file_op {
     }
 
     private static void processFile(File opFile) {
-        File resFile = new File(opFile.getParent(), opFile.getName().replace(".txt", ".res"));
         try (Scanner scanner = new Scanner(opFile);
-             FileWriter writer = new FileWriter(resFile)) {
+             FileWriter writer = new FileWriter(getResultFile(opFile))) {
+
             while (scanner.hasNextLine()) {
-                String data = scanner.nextLine().trim();
-                if (!data.matches("\\d+ \\d+ [+-\\/*]")) {
+                String line = scanner.nextLine().trim();
+                String[] parts = line.split(" ");
+
+                if (parts.length != 3) {
                     writer.write("ERROR: Format d'opération incorrect\n");
                     continue;
                 }
 
-                String[] parts = data.split(" ");
-                int leftNumber = Integer.parseInt(parts[0]);
-                int rightNumber = Integer.parseInt(parts[1]);
-                char operator = parts[2].charAt(0);
-
-                BinaryOperator operation = OPERATORS.get(operator);
-                if (operation == null) {
-                    writer.write("ERROR: Opérateur non pris en charge\n");
+                double num1, num2;
+                char operator;
+                try {
+                    num1 = Double.parseDouble(parts[0]);
+                    num2 = Double.parseDouble(parts[1]);
+                    operator = parts[2].charAt(0);
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                    writer.write("ERROR: Les deux premiers arguments doivent être des nombres et le troisième un opérateur.\n");
                     continue;
                 }
 
-                int result = operation.apply(leftNumber, rightNumber);
+                double result = calculate(num1, num2, operator);
                 writer.write(result + "\n");
             }
         } catch (IOException e) {
@@ -68,7 +59,22 @@ public class file_op {
         }
     }
 
-    private interface BinaryOperator {
-        int apply(int a, int b);
+    private static File getResultFile(File opFile) {
+        String resFileName = opFile.getName().replace(".op", ".res");
+        return new File(opFile.getParent(), resFileName);
+    }
+
+    public static double calculate(double num1, double num2, char operator) {
+        switch (operator) {
+            case '+':
+                return num1 + num2;
+            case '-':
+                return num1 - num2;
+            case '*':
+                return num1 * num2;
+            default:
+                return Double.NaN;
+        }
     }
 }
+
